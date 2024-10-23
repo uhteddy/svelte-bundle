@@ -2,7 +2,7 @@
 
 **Svelte Bundle CLI** is a simple command-line tool that allows you to bundle a Svelte application into a single `index.html` file using Vite and SSR (Server-Side Rendering). The goal of this tool is to make it easy to bundle Svelte apps for deployment, particularly for cases where everything needs to be contained in a single file.
 
-⚠️ **Note**: This tool is currently in early development and is not fully complete. The roadmap and additional features will be added over time.
+⚠️ **Note**: This tool is currently in early development and is not fully complete. The roadmap and additional features will be added over time. There is currently **NO** testing on this, meaning there is no guarentee it will work for most usecases.
 
 ## Features (In Progress)
 - Bundles Svelte applications using Vite and SSR.

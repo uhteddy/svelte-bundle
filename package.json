@@ -1,12 +1,22 @@
 {
-  "name": "svelte-bundle",
+  "name": "svelte-bundle-cli",
   "version": "0.0.1",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "A CLI tool to bundle Svelte apps into a single index.html",
+  "main": "bin/svelte-bundle-cli.js",
+  "type": "module",
+  "bin": {
+    "svelte-bundle": "./bin/svelte-bundle-cli.js"
   },
-  "keywords": [],
-  "author": "Teddy Hartling",
-  "license": "ISC",
-  "description": "Simplistically bundle .svelte files into a single .html file that is fully functional."
+  "scripts": {
+    "build": "vite build && vite build --ssr src/entry-server.js --mode ssr && node build.js"
+  },
+  "dependencies": {
+    "commander": "^8.0.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^4.0.0",
+    "svelte": "^5.1.0",
+    "vite": "^5.4.10",
+    "vite-plugin-singlefile": "^2.0.2"
+  }
 }
