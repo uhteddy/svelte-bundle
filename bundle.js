@@ -4,12 +4,14 @@ import { rollup } from 'rollup';
 import svelte from 'rollup-plugin-svelte';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import { compile } from 'svelte/compiler';
 import css from 'rollup-plugin-css-only';
 import terser from '@rollup/plugin-terser';
 
 export async function buildStaticFile(svelteFilePath, outputDir) {
   try {
+    // Ensure output directory exists
+    await fs.mkdir(outputDir, { recursive: true });
+
     let cssText = '';
     
     // Create temporary SSR bundle
@@ -54,7 +56,7 @@ export async function buildStaticFile(svelteFilePath, outputDir) {
     const { default: App } = await import(tempSSRFile);
     const { html: initialHtml } = App.render();
 
-    // Clean up temp file
+    // Clean up temp files
     await fs.rm(tempDir, { recursive: true, force: true });
 
     // Build client-side bundle
@@ -103,9 +105,13 @@ export async function buildStaticFile(svelteFilePath, outputDir) {
 </head>
 <body>
     <div id="app">${initialHtml}</div>
+    <script src="https://unpkg.com/svelte@3.58.0/internal/index.js"></script>
     <script>
       ${clientCode}
-      const app = new App({target: document.getElementById('app'), hydrate: true});
+      const app = new App({
+        target: document.getElementById('app'),
+        hydrate: true
+      });
     </script>
 </body>
 </html>`;
@@ -114,6 +120,7 @@ export async function buildStaticFile(svelteFilePath, outputDir) {
     const outputPath = path.join(outputDir, 'output.html');
     await fs.writeFile(outputPath, finalHtml, 'utf-8');
   } catch (error) {
+    console.error('Build error:', error);
     throw error;
   }
 }
