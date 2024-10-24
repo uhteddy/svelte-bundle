@@ -103,13 +103,9 @@ export async function buildStaticFile(svelteFilePath, outputDir) {
 </head>
 <body>
     <div id="app">${initialHtml}</div>
-    <script src="https://unpkg.com/svelte@3.58.0/internal/index.js"></script>
     <script>
       ${clientCode}
-      const app = new App({
-        target: document.getElementById('app'),
-        hydrate: true
-      });
+      const app = new App({target: document.getElementById('app'), hydrate: true});
     </script>
 </body>
 </html>`;
