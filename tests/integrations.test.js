@@ -6,10 +6,11 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const execAsync = promisify(exec);
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const __filename = fileURLToPath(import.meta.url);
+const TESTS_DIR = path.dirname(__filename);
 
 describe('CLI Integration', () => {
-  const testDir = path.join(__dirname, 'temp-cli');
+  const testDir = path.join(TESTS_DIR, 'temp-cli');
   
   beforeEach(async () => {
     await fs.mkdir(testDir, { recursive: true });
@@ -52,20 +53,4 @@ describe('CLI Integration', () => {
       .catch(() => false);
     expect(outputExists).toBe(true);
   }, { timeout: 10000 });
-});
-
-// vitest.config.js
-import { defineConfig } from 'vitest/config';
-
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: 'node',
-    testTimeout: 10000,
-    coverage: {
-      reporter: ['text', 'json', 'html'],
-      exclude: ['node_modules/**', 'tests/**']
-    },
-    include: ['tests/**/*.test.js'],
-  },
 });
