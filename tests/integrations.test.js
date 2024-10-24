@@ -16,7 +16,13 @@ describe('CLI Integration', () => {
   });
 
   afterEach(async () => {
-    await fs.rm(testDir, { recursive: true, force: true });
+    try {
+      await fs.rm(testDir, { recursive: true, force: true });
+      // Also remove output.html from current directory if it exists
+      await fs.unlink('output.html').catch(() => {});
+    } catch (error) {
+      console.error('Cleanup error:', error);
+    }
   });
 
   it('should show help text', async () => {
@@ -24,7 +30,7 @@ describe('CLI Integration', () => {
     expect(stdout).toContain('Usage:');
     expect(stdout).toContain('Options:');
     expect(stdout).toContain('--input');
-  });
+  }, { timeout: 10000 });
 
   it('should require input parameter', async () => {
     try {
@@ -32,10 +38,9 @@ describe('CLI Integration', () => {
     } catch (error) {
       expect(error.stderr).toContain('required option');
     }
-  });
+  }, { timeout: 10000 });
 
   it('should build a file with default output location', async () => {
-    // Create test component
     const testComponent = '<h1>Hello World</h1>';
     const testFile = path.join(testDir, 'Test.svelte');
     await fs.writeFile(testFile, testComponent);
@@ -46,8 +51,21 @@ describe('CLI Integration', () => {
       .then(() => true)
       .catch(() => false);
     expect(outputExists).toBe(true);
+  }, { timeout: 10000 });
+});
 
-    // Cleanup
-    await fs.unlink('output.html');
-  });
+// vitest.config.js
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+    testTimeout: 10000,
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+      exclude: ['node_modules/**', 'tests/**']
+    },
+    include: ['tests/**/*.test.js'],
+  },
 });

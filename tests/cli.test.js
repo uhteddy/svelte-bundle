@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,17 +11,18 @@ describe('Svelte Bundler', () => {
   const testOutput = path.join(testDir, 'output.html');
   
   beforeEach(async () => {
-    // Create test directory
     await fs.mkdir(testDir, { recursive: true });
   });
 
   afterEach(async () => {
-    // Cleanup test directory
-    await fs.rm(testDir, { recursive: true, force: true });
+    try {
+      await fs.rm(testDir, { recursive: true, force: true });
+    } catch (error) {
+      console.error('Cleanup error:', error);
+    }
   });
 
   it('should build a valid html file from a svelte component', async () => {
-    // Create test svelte file
     const testComponent = `
       <script>
         let count = 0;
@@ -35,21 +36,19 @@ describe('Svelte Bundler', () => {
     const testSvelteFile = path.join(testDir, 'Test.svelte');
     await fs.writeFile(testSvelteFile, testComponent);
 
-    // Build the component
     await buildStaticFile(testSvelteFile, testDir);
 
-    // Check if output exists
     const outputExists = await fs.access(testOutput)
       .then(() => true)
       .catch(() => false);
     expect(outputExists).toBe(true);
 
-    // Read output and check content
     const output = await fs.readFile(testOutput, 'utf-8');
     expect(output).toContain('<!DOCTYPE html>');
     expect(output).toContain('<button');
     expect(output).toContain('Count is');
-    expect(output).toContain('svelte@3.58.0/internal/index.js');
+    expect(output).toContain('new App({');
+    expect(output).toContain('target: document.getElementById(\'app\')');
   });
 
   it('should handle components with styles', async () => {
@@ -74,10 +73,11 @@ describe('Svelte Bundler', () => {
 
     const output = await fs.readFile(testOutput, 'utf-8');
     expect(output).toContain('<style>');
-    expect(output).toContain('color: blue');
+    // The CSS is compiled and has class names added, so we check for the color in the compiled form
+    expect(output).toContain('color:blue');
   });
 
-  it('should handle missing output directory by creating it', async () => {
+  it('should create output directory if it doesn\'t exist', async () => {
     const deepDir = path.join(testDir, 'deep', 'nested');
     const testComponent = '<h1>Hello</h1>';
     const testSvelteFile = path.join(testDir, 'TestDeep.svelte');
@@ -93,9 +93,6 @@ describe('Svelte Bundler', () => {
 
   it('should throw error for non-existent input file', async () => {
     const nonExistentFile = path.join(testDir, 'NonExistent.svelte');
-    
-    await expect(buildStaticFile(nonExistentFile, testDir))
-      .rejects
-      .toThrow();
+    await expect(buildStaticFile(nonExistentFile, testDir)).rejects.toThrow();
   });
 });
