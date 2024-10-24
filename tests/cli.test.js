@@ -79,7 +79,7 @@ describe('Svelte Bundler', () => {
 
   it('should create output directory if it doesn\'t exist', async () => {
     const deepDir = path.join(testDir, 'deep', 'nested');
-    const testComponent = '<h1>Hello</h1>';
+    const testComponent = `<h1>Hello</h1>`;
     const testSvelteFile = path.join(testDir, 'TestDeep.svelte');
     const outputFile = path.join(deepDir, 'output.html');
     
@@ -106,7 +106,10 @@ describe('Svelte Bundler', () => {
 
     // Verify file contents
     const output = await fs.readFile(outputFile, 'utf-8');
-    expect(output).toContain('<h1>Hello</h1>');
+    expect(output).toContain('<div id="app">');
+    // Check for the content within the app div
+    const appContentMatch = output.match(/<div id="app">(.*?)<\/div>/s);
+    expect(appContentMatch[1]).toContain('<h1>Hello</h1>');
   });
 
   it('should throw error for non-existent input file', async () => {
