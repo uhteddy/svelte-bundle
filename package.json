@@ -17,6 +17,12 @@
     "html",
     "ssr"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "prepublishOnly": "chmod +x cli.js"
+  },
   "author": "Teddy Hartling",
   "license": "MIT",
   "dependencies": {
