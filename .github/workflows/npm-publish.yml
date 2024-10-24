@@ -1,28 +1,27 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
-
-name: Publish to NPM
+name: Publish Package
 
 on:
   release:
     types: [created]
 
 jobs:
-  build-and-publish:
+  publish:
     runs-on: ubuntu-latest
     permissions: 
       contents: read
+      packages: write
       id-token: write
     steps:
       - uses: actions/checkout@v4
-      
-      - uses: actions/setup-node@v4
+
+      # Setup .npmrc file for GitHub Packages
+      - name: Setup Node.js for GitHub Packages
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-          # This is important for package scoping if you're using it
-          # scope: '@your-org'
-          
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@${{ github.repository_owner }}'
+      
       # Install dependencies
       - name: Install dependencies
         run: npm ci
@@ -34,16 +33,28 @@ jobs:
       # Build your project if needed
       # - name: Build
       #   run: npm run build
-        
+
+      # Publish to GitHub Packages
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Setup .npmrc file for NPM
+      - name: Setup Node.js for NPM
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
       # Publish to NPM
       - name: Publish to NPM
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          
-      # Optional: Create GitHub Release
+      
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Package published to NPM successfully"
+          echo "Package published to NPM and GitHub Packages successfully"

@@ -1,6 +1,6 @@
 {
   "name": "svelte-bundle",
-  "version": "0.0.1",
+  "version": "0.0.11",
   "description": "Bundle Svelte files into static HTML files",
   "type": "module",
   "bin": {
@@ -18,7 +18,13 @@
     "ssr"
   ],
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "@uhteddy:registry": "https://npm.pkg.github.com",
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-github-username/svelte-bundle-html.git"
   },
   "scripts": {
     "prepublishOnly": "chmod +x cli.js"
@@ -35,5 +41,9 @@
     "rollup-plugin-css-only": "^4.3.0",
     "rollup-plugin-svelte": "^7.1.4",
     "svelte": "^3.58.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.3",
+    "vitest": "^2.1.3"
   }
 }

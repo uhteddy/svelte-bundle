@@ -7,8 +7,17 @@ import { createInterface } from 'readline';
 import { buildStaticFile } from './bundle.js';
 import { fileURLToPath } from 'url';
 
+// Get package.json data
+import { readFile } from 'fs/promises';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Read package.json
+const packageJson = JSON.parse(
+  await readFile(
+    new URL('./package.json', import.meta.url)
+  )
+);
 
 // Create readline interface for prompts
 const rl = createInterface({
@@ -21,8 +30,8 @@ const question = (query) => new Promise((resolve) => rl.question(query, resolve)
 
 program
   .name('svelte-bundle')
-  .description('Bundle a Svelte file into a standalone .html file')
-  .version('0.0.1')
+  .description(packageJson.description)
+  .version(packageJson.version)
   .requiredOption('-i, --input <path>', 'Input Svelte file')
   .option('-o, --output <path>', 'Output directory (defaults to current directory)')
   .option('-f, --force', 'Force overwrite without asking');
@@ -87,7 +96,7 @@ async function validateAndProcess() {
       }
     }
 
-    console.log(chalk.blue('Starting build process...'));
+    console.log(chalk.blue(`Starting ${packageJson.name} v${packageJson.version} build process...`));
     console.log(chalk.gray(`Input: ${inputPath}`));
     console.log(chalk.gray(`Output: ${outputPath}`));
 
