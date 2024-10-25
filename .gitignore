@@ -4,3 +4,4 @@ node_modules/
 .npmrc
 *.log
 local_tests
+output.html

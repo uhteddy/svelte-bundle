@@ -1,3 +1,4 @@
+// bundle.js
 import fs from 'fs/promises';
 import path from 'path';
 import { rollup } from 'rollup';
@@ -9,9 +10,6 @@ import terser from '@rollup/plugin-terser';
 
 export async function buildStaticFile(svelteFilePath, outputDir) {
   try {
-    // Ensure output directory exists
-    await fs.mkdir(outputDir, { recursive: true });
-
     let cssText = '';
     
     // Create temporary SSR bundle
@@ -118,6 +116,7 @@ export async function buildStaticFile(svelteFilePath, outputDir) {
 
     // Write the output file
     const outputPath = path.join(outputDir, 'output.html');
+    await fs.mkdir(outputDir, { recursive: true });
     await fs.writeFile(outputPath, finalHtml, 'utf-8');
   } catch (error) {
     console.error('Build error:', error);
