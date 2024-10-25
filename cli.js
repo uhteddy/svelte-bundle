@@ -26,6 +26,14 @@ const rl = createInterface({
 
 const question = (query) => new Promise((resolve) => rl.question(query, resolve));
 
+// Add check for node version
+const nodeVersion = process.versions.node;
+const [major] = nodeVersion.split('.').map(Number);
+if (major < 18) {
+  console.error(chalk.red(`Error: Node.js version 18 or higher is required. Current version: ${nodeVersion}`));
+  process.exit(1);
+}
+
 program
   .name('svelte-bundle')
   .description(packageJson.description)
@@ -132,6 +140,9 @@ async function validateAndProcess() {
   } catch (error) {
     console.error(chalk.red('\nBuild failed:'));
     console.error(chalk.red(error.message));
+    if (error.stack) {
+      console.error(chalk.gray(error.stack));
+    }
     process.exit(1);
   } finally {
     rl.close();

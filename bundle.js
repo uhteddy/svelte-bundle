@@ -1,3 +1,4 @@
+// bundle.js
 import fs from 'fs/promises';
 import path from 'path';
 import { rollup } from 'rollup';
@@ -10,17 +11,12 @@ import postcss from 'postcss';
 import tailwindcss from 'tailwindcss';
 import autoprefixer from 'autoprefixer';
 import cssnano from 'cssnano';
-import { createRequire } from 'module';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Function to find the CLI's node_modules directory
-const findCliNodeModules = () => {
-  return path.resolve(__dirname, 'node_modules');
-};
 
 export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
   const { useTailwind = false, tailwindConfig = null } = options;
@@ -28,9 +24,6 @@ export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
   try {
     // Ensure output directory exists
     await fs.mkdir(outputDir, { recursive: true });
-
-    // Get CLI's node_modules path
-    const cliNodeModules = findCliNodeModules();
 
     let cssText = '';
     
@@ -75,6 +68,9 @@ export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
         .process(tailwindCss, { from: undefined });
       globalCssText = processedCss.css;
     }
+
+    // Get the absolute path to svelte/internal
+    const svelteInternalPath = require.resolve('svelte/internal');
     
     // Create temporary SSR bundle
     const ssrBundle = await rollup({
@@ -104,52 +100,31 @@ export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
         resolve({
           browser: true,
           dedupe: ['svelte'],
-          preferBuiltins: false,
-          moduleDirectories: ['node_modules'],
-          modulePaths: [cliNodeModules],
-          rootDir: cliNodeModules
+          modulePaths: [path.join(__dirname, 'node_modules')],
+          rootDir: __dirname
         }),
         commonjs()
-      ]
+      ],
+      external: ['svelte/internal']
     });
 
-    // Create a temporary directory for SSR
-    const tempDir = path.join(path.dirname(svelteFilePath), '.temp');
+    // Create a temporary directory in the CLI package directory
+    const tempDir = path.join(__dirname, '.temp');
     await fs.mkdir(tempDir, { recursive: true });
-    
-    // Create package.json for the temp directory
-    await fs.writeFile(
-      path.join(tempDir, 'package.json'),
-      JSON.stringify({ 
-        type: 'module',
-        dependencies: {
-          svelte: require(path.join(cliNodeModules, 'svelte', 'package.json')).version
-        }
-      }),
-      'utf-8'
-    );
+    const tempSSRFile = path.join(tempDir, 'ssr-bundle.js');
 
-    // Create symlink to CLI's node_modules
-    const tempNodeModules = path.join(tempDir, 'node_modules');
-    try {
-      await fs.symlink(cliNodeModules, tempNodeModules, 'junction');
-    } catch (error) {
-      if (error.code !== 'EEXIST') {
-        throw error;
-      }
-    }
-
-    const tempSSRFile = path.join(tempDir, 'ssr-bundle.mjs');
-
-    // Generate SSR bundle
+    // Generate SSR bundle as ESM
     await ssrBundle.write({
       file: tempSSRFile,
       format: 'es',
-      exports: 'default'
+      exports: 'default',
+      paths: {
+        'svelte/internal': svelteInternalPath
+      }
     });
 
-    // Import the SSR bundle
-    const { default: App } = await import(`file://${tempSSRFile}`);
+    // Import the SSR bundle using dynamic import
+    const { default: App } = await import(/* @vite-ignore */`file://${tempSSRFile}`);
     const { html: initialHtml } = App.render();
 
     // Clean up temp files
@@ -182,9 +157,8 @@ export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
         resolve({
           browser: true,
           dedupe: ['svelte'],
-          moduleDirectories: ['node_modules'],
-          modulePaths: [cliNodeModules],
-          rootDir: cliNodeModules
+          modulePaths: [path.join(__dirname, 'node_modules')],
+          rootDir: __dirname
         }),
         commonjs(),
         terser()
@@ -200,7 +174,7 @@ export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
     });
 
     // Create the final HTML
-    const finalHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Static Svelte App</title><style>${globalCssText}${cssText}</style></head><body><div id="app">${initialHtml}</div><script src="https://unpkg.com/svelte@3.58.0/internal/index.js"></script><script>${clientCode}const app=new App({target:document.getElementById("app"),hydrate:!0});</script></body></html>`;
+    const finalHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Static Svelte App</title><style>${globalCssText}${cssText}</style></head><body><div id="app">${initialHtml}</div><script>${clientCode}const app=new App({target:document.getElementById("app"),hydrate:!0});</script></body></html>`;
 
     // Write the output file
     const outputPath = path.join(outputDir, 'output.html');
