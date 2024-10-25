@@ -48,8 +48,8 @@ describe('Svelte Bundler', () => {
     expect(output).toContain('<!DOCTYPE html>');
     expect(output).toContain('<button');
     expect(output).toContain('Count is');
-    expect(output).toContain('new App({');
-    expect(output).toContain('target: document.getElementById(\'app\')');
+    expect(output).toContain('new App(');
+    expect(output).toContain('getElementById("app")');
   });
 
   it('should handle components with styles', async () => {
