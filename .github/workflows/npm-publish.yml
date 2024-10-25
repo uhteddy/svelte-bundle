@@ -14,51 +14,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Setup .npmrc file for GitHub Packages
+      # Setup Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org/'
+      
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
+        
+      # Fix package.json
+      - name: Fix package.json
+        run: npm pkg fix
+      
+      # Setup NPM authentication
+      - name: Authenticate with NPM
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" >> .npmrc
+          npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Publish to NPM
+      - name: Publish to NPM
+        run: npm publish --access public --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Setup for GitHub Packages
       - name: Setup Node.js for GitHub Packages
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@${{ github.repository_owner }}'
-      
-      # Install dependencies
-      - name: Install dependencies
-        run: npm ci
-        
+
       # Publish to GitHub Packages
       - name: Publish to GitHub Packages
-        run: npm publish
+        run: npm publish --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Setup .npmrc file for NPM
-      - name: Setup Node.js for NPM
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-
-      # Create NPM authentication file
-      - name: Create .npmrc
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
-          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
-          echo "always-auth=true" >> ~/.npmrc
-
-      # Fix package name issue
-      - name: Fix package.json
-        run: npm pkg fix
-
-      # Publish to NPM
-      - name: Publish to NPM
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Package published to NPM and GitHub Packages successfully"
+          echo "Package published successfully"
