@@ -3,6 +3,7 @@ This tool can be used with `npx`:
 ```bash
 npx svelte-bundle -i <input-dir> -o <output-dir>
 ```
+### Full Documentation: (https://github.com/uhteddy/svelte-bundle/wiki)[https://github.com/uhteddy/svelte-bundle/wiki]
 
 # Svelte Bundle CLI
 
