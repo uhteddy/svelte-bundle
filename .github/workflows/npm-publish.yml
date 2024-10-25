@@ -26,14 +26,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      # Optional: Run tests if you have them
-      # - name: Run tests
-      #   run: npm test
-        
-      # Build your project if needed
-      # - name: Build
-      #   run: npm run build
-
       # Publish to GitHub Packages
       - name: Publish to GitHub Packages
         run: npm publish
@@ -47,11 +39,23 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      # Create NPM authentication file
+      - name: Create .npmrc
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+
+      # Fix package name issue
+      - name: Fix package.json
+        run: npm pkg fix
+
       # Publish to NPM
       - name: Publish to NPM
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       
       - name: Create Release
         env:
