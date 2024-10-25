@@ -31,8 +31,5 @@ I noticed through a lot of google searches I wasn't the only one looking for a s
 - [x] CLI arguments for specifying input and output directories.
 - [x] Tests and CI integration.
 - [x] Handle CSS and assets within the bundled file.
-
-## Roadmap
-- [ ] Add tailwindcss support
-- [ ] Implement error handling and more robust validation.
-- [ ] Documentation and guides on using the tool with different Svelte apps.
+- [x] Add tailwindcss support, **this is in beta**.
+- [x] Implement error handling and more robust validation.
