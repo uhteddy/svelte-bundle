@@ -34,12 +34,7 @@ program
   .option('-o, --output <path>', 'Output directory (defaults to current directory)')
   .option('--tw', 'Enable Tailwind CSS processing')
   .option('--tw-config <path>', 'Path to custom Tailwind config file')
-  .option('-f, --force', 'Force overwrite without asking')
-  .option('--svelte-version <version>', 'Specify Svelte version (3 or 5)', '3')
-  .option('--dev', 'Enable development mode')
-  .option('--preserve-comments', 'Preserve HTML comments')
-  .option('--preserve-whitespace', 'Preserve whitespace')
-  .option('--sourcemap', 'Generate sourcemaps');
+  .option('-f, --force', 'Force overwrite without asking');
 
 program.parse();
 
@@ -58,13 +53,6 @@ async function loadTailwindConfig(configPath) {
 
 async function validateAndProcess() {
   try {
-    // Validate Svelte version
-    const svelteVersion = options.svelteVersion;
-    if (!['3', '5'].includes(svelteVersion)) {
-      console.error(chalk.red('Error: Svelte version must be either 3 or 5'));
-      process.exit(1);
-    }
-
     // Validate input file
     const inputPath = path.resolve(options.input);
     const inputExt = path.extname(inputPath);
@@ -125,35 +113,16 @@ async function validateAndProcess() {
       }
     }
 
-    // Log configuration
     console.log(chalk.blue('Starting build process...'));
     console.log(chalk.gray(`Input: ${inputPath}`));
     console.log(chalk.gray(`Output directory: ${outputDir}`));
-    console.log(chalk.gray(`Svelte version: ${svelteVersion}`));
-    if (options.dev) {
-      console.log(chalk.gray('Development mode enabled'));
-    }
-    if (options.preserveComments) {
-      console.log(chalk.gray('Preserving HTML comments'));
-    }
-    if (options.preserveWhitespace) {
-      console.log(chalk.gray('Preserving whitespace'));
-    }
-    if (options.sourcemap) {
-      console.log(chalk.gray('Generating sourcemaps'));
-    }
     if (options.tw) {
       console.log(chalk.gray('Tailwind CSS enabled'));
     }
 
     const buildOptions = {
       useTailwind: options.tw || false,
-      tailwindConfig: tailwindConfig,
-      svelteVersion: parseInt(svelteVersion),
-      dev: options.dev || false,
-      preserveComments: options.preserveComments || false,
-      preserveWhitespace: options.preserveWhitespace || false,
-      sourcemap: options.sourcemap || false
+      tailwindConfig: tailwindConfig
     };
 
     await buildStaticFile(inputPath, outputDir, buildOptions);
