@@ -1,6 +1,6 @@
 {
   "name": "svelte-bundle",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "CLI tool to easily bundle a .svelte file into a single .html file",
   "type": "module",
   "npm": "svelte-bundle",
