@@ -1,10 +1,10 @@
 {
   "name": "svelte-bundle",
-  "version": "0.0.21",
+  "version": "0.0.23",
   "description": "Bundle Svelte files into static HTML files",
   "type": "module",
   "bin": {
-    "svelte-bundle": "./cli.js"
+    "svelte-bundle": "cli.js"
   },
   "files": [
     "cli.js",
