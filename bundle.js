@@ -7,10 +7,61 @@ import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import css from 'rollup-plugin-css-only';
 import terser from '@rollup/plugin-terser';
+import postcss from 'postcss';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
+import cssnano from 'cssnano';
 
-export async function buildStaticFile(svelteFilePath, outputDir) {
+export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
+  const { useTailwind = false, tailwindConfig = null } = options;
+
   try {
+    // Ensure output directory exists
+    await fs.mkdir(outputDir, { recursive: true });
+
     let cssText = '';
+    
+    // Setup PostCSS plugins based on whether Tailwind is enabled
+    const postcssPlugins = useTailwind 
+      ? [
+          tailwindcss(tailwindConfig || {
+            content: [svelteFilePath],
+            theme: { extend: {} },
+            plugins: [],
+          }),
+          autoprefixer(),
+          cssnano({
+            preset: ['default', {
+              discardComments: {
+                removeAll: true,
+              },
+            }],
+          })
+        ]
+      : [
+          autoprefixer(),
+          cssnano({
+            preset: ['default', {
+              discardComments: {
+                removeAll: true,
+              },
+            }],
+          })
+        ];
+
+    // Process global styles
+    let globalCssText = '';
+    if (useTailwind) {
+      const tailwindCss = `
+        @tailwind base;
+        @tailwind components;
+        @tailwind utilities;
+      `;
+
+      const processedCss = await postcss(postcssPlugins)
+        .process(tailwindCss, { from: undefined });
+      globalCssText = processedCss.css;
+    }
     
     // Create temporary SSR bundle
     const ssrBundle = await rollup({
@@ -22,7 +73,15 @@ export async function buildStaticFile(svelteFilePath, outputDir) {
             hydratable: true,
             css: false
           },
-          emitCss: true
+          emitCss: true,
+          preprocess: useTailwind ? {
+            style: async ({ content }) => {
+              if (!content) return { code: '' };
+              const result = await postcss(postcssPlugins)
+                .process(content, { from: undefined });
+              return { code: result.css };
+            }
+          } : undefined
         }),
         css({
           output: function(styles) {
@@ -66,7 +125,15 @@ export async function buildStaticFile(svelteFilePath, outputDir) {
             hydratable: true,
             css: false
           },
-          emitCss: true
+          emitCss: true,
+          preprocess: useTailwind ? {
+            style: async ({ content }) => {
+              if (!content) return { code: '' };
+              const result = await postcss(postcssPlugins)
+                .process(content, { from: undefined });
+              return { code: result.css };
+            }
+          } : undefined
         }),
         css({
           output: function(styles) {
@@ -91,32 +158,10 @@ export async function buildStaticFile(svelteFilePath, outputDir) {
     });
 
     // Create the final HTML
-    const finalHtml = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Static Svelte App</title>
-    <style>
-      ${cssText}
-    </style>
-</head>
-<body>
-    <div id="app">${initialHtml}</div>
-    <script src="https://unpkg.com/svelte@3.58.0/internal/index.js"></script>
-    <script>
-      ${clientCode}
-      const app = new App({
-        target: document.getElementById('app'),
-        hydrate: true
-      });
-    </script>
-</body>
-</html>`;
+    const finalHtml = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Static Svelte App</title><style>${globalCssText}${cssText}</style></head><body><div id="app">${initialHtml}</div><script src="https://unpkg.com/svelte@3.58.0/internal/index.js"></script><script>${clientCode}const app=new App({target:document.getElementById("app"),hydrate:!0});</script></body></html>`;
 
     // Write the output file
     const outputPath = path.join(outputDir, 'output.html');
-    await fs.mkdir(outputDir, { recursive: true });
     await fs.writeFile(outputPath, finalHtml, 'utf-8');
   } catch (error) {
     console.error('Build error:', error);

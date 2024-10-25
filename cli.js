@@ -19,13 +19,11 @@ const packageJson = JSON.parse(
   )
 );
 
-// Create readline interface for prompts
 const rl = createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-// Promisify readline question
 const question = (query) => new Promise((resolve) => rl.question(query, resolve));
 
 program
@@ -34,26 +32,23 @@ program
   .version(packageJson.version)
   .requiredOption('-i, --input <path>', 'Input Svelte file')
   .option('-o, --output <path>', 'Output directory (defaults to current directory)')
+  .option('--tw', 'Enable Tailwind CSS processing')
+  .option('--tw-config <path>', 'Path to custom Tailwind config file')
   .option('-f, --force', 'Force overwrite without asking');
 
 program.parse();
 
 const options = program.opts();
 
-async function checkFileExists(filepath) {
+async function loadTailwindConfig(configPath) {
+  const fullPath = path.resolve(configPath);
   try {
-    await fs.access(filepath);
-    return true;
-  } catch {
-    return false;
+    const { default: config } = await import(fullPath);
+    return config;
+  } catch (error) {
+    console.error(chalk.red(`Error loading Tailwind config: ${error.message}`));
+    process.exit(1);
   }
-}
-
-async function shouldOverwrite(filepath) {
-  const answer = await question(
-    chalk.yellow(`File ${filepath} already exists. Overwrite? (y/N): `)
-  );
-  return answer.toLowerCase() === 'y';
 }
 
 async function validateAndProcess() {
@@ -75,33 +70,62 @@ async function validateAndProcess() {
       process.exit(1);
     }
 
-    // Determine output directory and file path
+    // Handle Tailwind configuration
+    let tailwindConfig = null;
+    if (options.tw) {
+      if (options.twConfig) {
+        try {
+          tailwindConfig = await loadTailwindConfig(options.twConfig);
+          console.log(chalk.blue('Using custom Tailwind configuration'));
+        } catch (error) {
+          console.error(chalk.red(`Error loading Tailwind config: ${error.message}`));
+          process.exit(1);
+        }
+      } else {
+        console.log(chalk.blue('Using default Tailwind configuration'));
+      }
+    }
+
+    // Validate Tailwind config usage
+    if (options.twConfig && !options.tw) {
+      console.error(chalk.yellow('Warning: Tailwind config provided but Tailwind is not enabled. Use --tw to enable Tailwind.'));
+      process.exit(1);
+    }
+
+    // Determine output directory
     let outputDir = process.cwd();
     if (options.output) {
       outputDir = path.resolve(options.output);
-      // Create output directory if it doesn't exist
-      await fs.mkdir(outputDir, { recursive: true });
     }
 
     const outputPath = path.join(outputDir, 'output.html');
 
-    // Check if output file exists and handle overwriting
-    if (await checkFileExists(outputPath)) {
+    // Check if output file exists
+    if (await fs.access(outputPath).then(() => true).catch(() => false)) {
       if (!options.force) {
-        const shouldProceed = await shouldOverwrite(outputPath);
-        if (!shouldProceed) {
+        const shouldProceed = await question(
+          chalk.yellow(`File ${outputPath} already exists. Overwrite? (y/N): `)
+        );
+        if (shouldProceed.toLowerCase() !== 'y') {
           console.log(chalk.yellow('Operation cancelled.'));
           process.exit(0);
         }
       }
     }
 
-    console.log(chalk.blue(`Starting ${packageJson.name} v${packageJson.version} build process...`));
+    console.log(chalk.blue('Starting build process...'));
     console.log(chalk.gray(`Input: ${inputPath}`));
-    console.log(chalk.gray(`Output: ${outputPath}`));
+    console.log(chalk.gray(`Output directory: ${outputDir}`));
+    if (options.tw) {
+      console.log(chalk.gray('Tailwind CSS enabled'));
+    }
 
-    // Process the file
-    await buildStaticFile(inputPath, outputDir);
+    const buildOptions = {
+      useTailwind: options.tw || false,
+      tailwindConfig: tailwindConfig
+    };
+
+    await buildStaticFile(inputPath, outputDir, buildOptions);
 
     console.log(chalk.green('\n✨ Build completed successfully!'));
     console.log(chalk.gray(`Output file: ${outputPath}`));
