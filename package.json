@@ -1,9 +1,8 @@
 {
   "name": "svelte-bundle",
-  "version": "0.0.22",
-  "description": "CLI tool to easily bundle a .svelte file into a single .html file",
+  "version": "0.0.21",
+  "description": "Bundle Svelte files into static HTML files",
   "type": "module",
-  "npm": "svelte-bundle",
   "bin": {
     "svelte-bundle": "./cli.js"
   },
@@ -11,10 +10,6 @@
     "cli.js",
     "bundle.js"
   ],
-  "categories": [
-		"build-plugins",
-		"integrations"
-	],
   "keywords": [
     "svelte",
     "bundle",
