@@ -1,3 +1,5 @@
+> ⚠️ **NOTICE:** While this tool is currently functional, it has not nearly been battle-tested enough to ensure it works in most use-cases.
+
 ## Usage
 This tool can be used with `npx`:
 ```bash
@@ -13,9 +15,7 @@ Just note, the purpose of this tool is **NOT** to bundle an entire Svelte app, i
 
 Utilizing this you will be able to develop a page with the joy of svelte and be able to directly get a single `.html` file that you can utilize getting full use-case of svelte.
 
-⚠️ **Note**: This tool is **NOT** made to function with SvelteKit, this takes a single `.svelte` file as input and utilizes vite to compile it into a single `.html` file.
-
-⚠️ **Note**: This tool is currently in early development and is not fully complete. The roadmap and additional features will be added over time. There is currently **NO** testing on this, meaning there is no guarentee it will work for most usecases.
+⚠️ **Note**: This tool is **NOT** made to function with SvelteKit natively, this takes a single `.svelte` file as input and will output a single `.html` file.
 
 ## Inspiration
 This tool was inspired by the need I had when it came to updating the CMS for a company I worked for. They were looking for more custom content on their website which used an outdated CMS. Pages were only able to include HTML, CSS, and JS.
