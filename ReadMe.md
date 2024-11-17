@@ -1,5 +1,7 @@
 > ⚠️ **NOTICE:** While this tool is currently functional, it has not nearly been battle-tested enough to ensure it works in most use-cases.
 
+![svelte-bundle](https://media2.dev.to/dynamic/image/width=1000,height=420,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Farticles%2Fcwfyh1w8r8g4f2ap1hff.png)
+
 ## Usage
 This tool can be used with `npx`:
 ```bash
