@@ -6,6 +6,13 @@
   "bin": {
     "svelte-bundle": "cli.js"
   },
+  {
+  	"title": "svelte-bundle",
+  	"url": "https://github.com/uhteddy/svelte-bundle/",
+  	"repository": "https://github.com/uhteddy/svelte-bundle/",
+  	"description": "CLI tool to easily bundle a .svelte file into a single .html file",
+  	"npm": "svelte-bundle"
+  },
   "files": [
     "cli.js",
     "bundle.js"
