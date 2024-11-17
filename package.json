@@ -1,6 +1,6 @@
 {
   "name": "svelte-bundle",
-  "version": "0.0.23",
+  "version": "0.0.24",
   "description": "Bundle Svelte files into static HTML files",
   "type": "module",
   "bin": {
