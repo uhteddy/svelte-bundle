@@ -10,7 +10,7 @@
   "npm": "svelte-bundle",
   "categories": [
     "build-plugins"
-  ]
+  ],
   "bin": {
     "svelte-bundle": "cli.js"
   },
