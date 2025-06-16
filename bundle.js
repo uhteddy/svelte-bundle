@@ -13,13 +13,14 @@ import autoprefixer from 'autoprefixer';
 import cssnano from 'cssnano';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import alias from '@rollup/plugin-alias';
 
 const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
-  const { useTailwind = false, tailwindConfig = null } = options;
+  const { useTailwind = false, tailwindConfig = null, aliases = {} } = options;
 
   try {
     // Ensure output directory exists
@@ -76,6 +77,12 @@ export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
     const ssrBundle = await rollup({
       input: svelteFilePath,
       plugins: [
+        alias({
+          entries: Object.entries(aliases).map(([find, replacement]) => ({
+            find,
+            replacement
+          }))
+        }),
         svelte({
           compilerOptions: {
             generate: 'ssr',
@@ -134,6 +141,12 @@ export async function buildStaticFile(svelteFilePath, outputDir, options = {}) {
     const clientBundle = await rollup({
       input: svelteFilePath,
       plugins: [
+        alias({
+          entries: Object.entries(aliases).map(([find, replacement]) => ({
+            find,
+            replacement
+          }))
+        }),
         svelte({
           compilerOptions: {
             hydratable: true,
