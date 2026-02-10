@@ -1,16 +1,16 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { buildStaticFile } from '../bundle.js';
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+import { buildStaticFile } from "../bundle.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const TESTS_DIR = path.dirname(__filename);
 
-describe('Svelte Bundler', () => {
-  const testDir = path.join(TESTS_DIR, 'temp');
-  const testOutput = path.join(testDir, 'output.html');
-  
+describe("Svelte Bundler", () => {
+  const testDir = path.join(TESTS_DIR, "temp");
+  const testOutput = path.join(testDir, "output.html");
+
   beforeEach(async () => {
     await fs.mkdir(testDir, { recursive: true });
   });
@@ -19,40 +19,40 @@ describe('Svelte Bundler', () => {
     try {
       await fs.rm(testDir, { recursive: true, force: true });
     } catch (error) {
-      console.error('Cleanup error:', error);
+      console.error("Cleanup error:", error);
     }
   });
 
-  it('should build a valid html file from a svelte component', async () => {
+  it("should build a valid html file from a svelte component", async () => {
     const testComponent = `
       <script>
-        let count = 0;
+        let count = $state(0);
       </script>
 
-      <button on:click={() => count++}>
+      <button onclick={() => count++}>
         Count is {count}
       </button>
     `;
 
-    const testSvelteFile = path.join(testDir, 'Test.svelte');
+    const testSvelteFile = path.join(testDir, "Test.svelte");
     await fs.writeFile(testSvelteFile, testComponent);
 
     await buildStaticFile(testSvelteFile, testDir);
 
-    const outputExists = await fs.access(testOutput)
+    const outputExists = await fs
+      .access(testOutput)
       .then(() => true)
       .catch(() => false);
     expect(outputExists).toBe(true);
 
-    const output = await fs.readFile(testOutput, 'utf-8');
-    expect(output).toContain('<!DOCTYPE html>');
-    expect(output).toContain('<button');
-    expect(output).toContain('Count is');
-    expect(output).toContain('new App(');
+    const output = await fs.readFile(testOutput, "utf-8");
+    expect(output).toContain("<!DOCTYPE html>");
+    expect(output).toContain("<button");
+    expect(output).toContain("Count is");
     expect(output).toContain('getElementById("app")');
   });
 
-  it('should handle components with styles', async () => {
+  it("should handle components with styles", async () => {
     const testComponent = `
       <script>
         let name = 'world';
@@ -67,18 +67,18 @@ describe('Svelte Bundler', () => {
       </style>
     `;
 
-    const testSvelteFile = path.join(testDir, 'TestStyle.svelte');
+    const testSvelteFile = path.join(testDir, "TestStyle.svelte");
     await fs.writeFile(testSvelteFile, testComponent);
 
     await buildStaticFile(testSvelteFile, testDir);
 
-    const output = await fs.readFile(testOutput, 'utf-8');
-    expect(output).toContain('<style>');
-    expect(output).toContain('color:blue');
+    const output = await fs.readFile(testOutput, "utf-8");
+    expect(output).toContain("<style>");
+    expect(output).toContain("color: blue");
   });
 
-  it('should throw error for non-existent input file', async () => {
-    const nonExistentFile = path.join(testDir, 'NonExistent.svelte');
+  it("should throw error for non-existent input file", async () => {
+    const nonExistentFile = path.join(testDir, "NonExistent.svelte");
     await expect(buildStaticFile(nonExistentFile, testDir)).rejects.toThrow();
   });
 });
