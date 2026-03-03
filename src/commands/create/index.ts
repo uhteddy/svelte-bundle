@@ -1,4 +1,5 @@
 import { defineCommand } from 'citty';
+import { realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { ProjectTemplate } from '../../types.ts';
 import { runCreatePrompts } from './prompts.ts';
@@ -11,20 +12,28 @@ const SUPPORTED_TEMPLATES = ['default'] as const satisfies readonly ProjectTempl
 /**
  * Resolves the templates directory relative to the CLI entry file.
  *
- * Bun bundles all source into a single flat `dist/cli.js`, so `import.meta.url`
- * inside any bundled module points to `dist/cli.js` — NOT to the original source
- * file's location. Using `process.argv[1]` (the actual entry file on disk) is more
- * reliable: it is always one directory below the package root, whether the CLI runs
- * as `node dist/cli.js`, `bun run src/cli.ts`, or a globally-installed `svelte-bundle`.
+ * Two pitfalls to handle:
+ *
+ * 1. Bun bundles all source into a single flat `dist/cli.js`, so `import.meta.url`
+ *    inside any bundled module points to `dist/cli.js`, not the original source path.
+ *    Using `process.argv[1]` avoids this: it is always the entry file on disk.
+ *
+ * 2. `npm link` / `bun link` place a **symlink** in the global bin
+ *    (e.g. `~/.nvm/.../bin/svelte-bundle` → `dist/cli.js`). `process.argv[1]`
+ *    contains the *symlink* path, so `dirname` resolves against the bin dir, not
+ *    the package. `realpathSync` resolves symlinks before we take `dirname`, giving
+ *    us the real `dist/cli.js` path regardless of how the binary was invoked.
  */
 function getTemplatesDir(): string {
   const argv1 = process.argv[1];
   if (argv1 === undefined) {
     throw new Error('Cannot determine CLI entry location from process.argv[1].');
   }
-  // argv[1] is always the entry file (e.g. dist/cli.js or src/cli.ts).
-  // Both live exactly one level below the package root → ../templates.
-  return resolve(dirname(argv1), '..', 'templates');
+  // Resolve symlinks so a globally-linked binary returns the real dist/cli.js path.
+  const realEntry = realpathSync(argv1);
+  // The entry file lives exactly one level below the package root
+  // (dist/cli.js or src/cli.ts), so ../templates always hits the right directory.
+  return resolve(dirname(realEntry), '..', 'templates');
 }
 
 export const createCommand = defineCommand({
