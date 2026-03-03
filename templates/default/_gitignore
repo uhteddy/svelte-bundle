@@ -1,0 +1,19 @@
+node_modules/
+dist/
+.svelte-bundle/
+.env
+.env.local
+.env.*.local
+*.local
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# OS
+.DS_Store
+Thumbs.db

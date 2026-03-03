@@ -1,68 +1,28 @@
 {
   "name": "svelte-bundle",
-  "version": "0.1.0",
-  "description": "CLI tool to easily bundle a .svelte file into a single .html file",
+  "version": "0.2.0-alpha.1",
+  "description": "A powerful CLI for scaffolding and bundling Svelte components",
   "type": "module",
-  "title": "svelte-bundle",
-  "url": "https://github.com/uhteddy/svelte-bundle",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/uhteddy/svelte-bundle.git"
-  },
-  "npm": "svelte-bundle",
-  "categories": [
-    "build-plugins"
-  ],
   "bin": {
-    "svelte-bundle": "cli.js"
+    "svelte-bundle": "./dist/cli.js",
+    "sb": "./dist/cli.js"
   },
   "files": [
-    "cli.js",
-    "bundle.js"
+    "dist",
+    "templates"
   ],
-  "keywords": [
-    "svelte",
-    "bundle",
-    "static",
-    "html",
-    "ssr"
-  ],
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
   "scripts": {
-    "prepublishOnly": "chmod +x cli.js",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "build": "bun build src/cli.ts --outfile dist/cli.js --target node --format esm",
+    "dev": "bun run src/cli.ts",
+    "type-check": "tsc --noEmit"
   },
-  "author": "Teddy Hartling",
-  "license": "MIT",
   "dependencies": {
-    "@rollup/plugin-commonjs": "^24.0.1",
-    "@rollup/plugin-node-resolve": "^15.0.2",
-    "@rollup/plugin-terser": "^0.4.0",
-    "autoprefixer": "^10.4.20",
-    "chalk": "^5.3.0",
-    "commander": "^11.0.0",
-    "cssnano": "^7.0.6",
-    "rollup": "^3.20.0",
-    "rollup-plugin-css-only": "^4.3.0",
-    "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-svelte": "^7.1.4",
-    "svelte": "^5.50.0",
-    "tailwindcss": "^3.4.14"
+    "@clack/prompts": "^0.9.1",
+    "citty": "^0.1.6",
+    "picocolors": "^1.1.1"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.18",
-    "vitest": "^4.0.18"
-  },
-  "bugs": {
-    "url": "https://github.com/uhteddy/svelte-bundle/issues"
-  },
-  "homepage": "https://github.com/uhteddy/svelte-bundle#readme",
-  "engines": {
-    "node": ">=18"
+    "@types/bun": "latest",
+    "typescript": "^5"
   }
 }
