@@ -78,6 +78,9 @@ jobs:
 
           echo "Publishing $VERSION with dist-tag: $TAG"
 
+      - name: Fix package.json
+        run: npm pkg fix
+
       - name: Publish to npm (tag → ${{ steps.meta.outputs.tag }})
         run: npm publish --tag ${{ steps.meta.outputs.tag }} --provenance
         env:
