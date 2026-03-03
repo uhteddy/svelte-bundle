@@ -134,7 +134,7 @@ type PackageJsonShape = {
   devDependencies: Record<string, string>;
 };
 
-function buildPackageJson(ctx: ScaffoldContext): string {
+export function buildPackageJson(ctx: ScaffoldContext): string {
   const pkg: PackageJsonShape = {
     name: ctx.name,
     version: '0.0.1',
@@ -171,7 +171,7 @@ function buildPackageJson(ctx: ScaffoldContext): string {
 // Vite config generation
 // ---------------------------------------------------------------------------
 
-function buildViteConfig(ctx: ScaffoldContext): string {
+export function buildViteConfig(ctx: ScaffoldContext): string {
   const hasTailwind = ctx.features.includes('tailwind');
 
   const imports = ["import { defineConfig } from 'vite';", "import { svelte } from '@sveltejs/vite-plugin-svelte';"];
@@ -187,6 +187,11 @@ function buildViteConfig(ctx: ScaffoldContext): string {
 
 export default defineConfig({
   plugins: [${plugins.join(', ')}],
+  esbuild: {
+    // Strip all legal/license comments (e.g. from lucide-svelte) from JS and CSS
+    legalComments: 'none',
+    comments: false,
+  },
 });
 `;
 }
