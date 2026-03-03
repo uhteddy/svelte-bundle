@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "svelte-bundle build",
     "preview": "vite preview",
     "type-check": "tsc --noEmit"
   },
