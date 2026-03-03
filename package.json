@@ -14,6 +14,7 @@
   "scripts": {
     "build": "bun build src/cli.ts --outfile dist/cli.js --target node --format esm",
     "dev": "bun run src/cli.ts",
+    "test": "bun test",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
