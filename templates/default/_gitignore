@@ -1,5 +1,6 @@
 node_modules/
 dist/
+.svelte-bundle/
 .env
 .env.local
 .env.*.local
