@@ -62,9 +62,14 @@ describe('svelte-bundle build --help', () => {
 // citty derives --help output from these definitions, so this is a reliable
 // proxy for "flag appears in --help".
 
+// citty types args as Resolvable<T>, which can be a function or plain object.
+// Cast once to a plain record so we can inspect individual arg definitions.
+type ArgDef = { readonly type?: string; readonly alias?: string; readonly default?: string };
+type ArgRecord = Record<string, ArgDef | undefined>;
+
 describe('createCommand arg definitions', () => {
-  // Use ?? {} so TypeScript is happy; if args is ever undefined the tests catch it.
-  const args = Object.keys(createCommand.args ?? {});
+  const argDefs = createCommand.args as unknown as ArgRecord;
+  const args = Object.keys(argDefs);
 
   test('defines name positional arg', () => {
     expect(args).toContain('name');
@@ -87,20 +92,17 @@ describe('createCommand arg definitions', () => {
   });
 
   test('--template defaults to "default"', () => {
-    const templateArg = (createCommand.args ?? {})['template'] as
-      | { default?: string }
-      | undefined;
-    expect(templateArg?.default).toBe('default');
+    expect(argDefs['template']?.default).toBe('default');
   });
 
   test('--no-install is a boolean flag', () => {
-    const arg = (createCommand.args ?? {})['no-install'] as { type?: string } | undefined;
-    expect(arg?.type).toBe('boolean');
+    expect(argDefs['no-install']?.type).toBe('boolean');
   });
 });
 
 describe('buildCommand arg definitions', () => {
-  const args = Object.keys(buildCommand.args ?? {});
+  const argDefs = buildCommand.args as unknown as ArgRecord;
+  const args = Object.keys(argDefs);
 
   test('defines --hydrate flag', () => {
     expect(args).toContain('hydrate');
@@ -119,18 +121,15 @@ describe('buildCommand arg definitions', () => {
   });
 
   test('--hydrate is a boolean flag', () => {
-    const arg = (buildCommand.args ?? {})['hydrate'] as { type?: string } | undefined;
-    expect(arg?.type).toBe('boolean');
+    expect(argDefs['hydrate']?.type).toBe('boolean');
   });
 
   test('--mode has -m alias', () => {
-    const arg = (buildCommand.args ?? {})['mode'] as { alias?: string } | undefined;
-    expect(arg?.alias).toBe('m');
+    expect(argDefs['mode']?.alias).toBe('m');
   });
 
   test('--mode defaults to "production"', () => {
-    const arg = (buildCommand.args ?? {})['mode'] as { default?: string } | undefined;
-    expect(arg?.default).toBe('production');
+    expect(argDefs['mode']?.default).toBe('production');
   });
 });
 

@@ -14,8 +14,11 @@ import { pathExists } from '../src/utils/fs.ts';
 
 const TEMPLATES_DIR = join(import.meta.dir, '..', 'templates');
 
+// targetDir is excluded from overrides — it is always the fresh temp subdir.
 async function scaffoldInto(
-  overrides: Partial<ScaffoldContext> & { features?: readonly OptionalFeature[] } = {},
+  overrides: Omit<Partial<ScaffoldContext>, 'targetDir'> & {
+    features?: readonly OptionalFeature[];
+  } = {},
 ): Promise<{ dir: string; cleanup: () => Promise<void> }> {
   // Create a parent temp dir so scaffold() can create its own fresh subdirectory.
   // scaffold() exits with code 1 if targetDir already exists, so we must NOT
@@ -31,8 +34,6 @@ async function scaffoldInto(
     git: false,
     install: false,
     ...overrides,
-    // targetDir is always the fresh subdir — never overrideable
-    targetDir: dir,
   });
   return { dir, cleanup: () => rm(parent, { recursive: true, force: true }) };
 }
