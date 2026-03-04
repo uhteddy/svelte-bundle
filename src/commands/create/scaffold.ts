@@ -119,6 +119,51 @@ describe('example', () => {
       },
     ],
   },
+  playwright: {
+    devDependencies: {
+      '@playwright/test': '^1.0.0',
+    },
+    extraFiles: [
+      {
+        path: 'playwright.config.ts',
+        content: `import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:5173',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+  webServer: {
+    command: 'vite',
+    url: 'http://localhost:5173',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+`,
+      },
+      {
+        path: 'e2e/example.test.ts',
+        content: `import { expect, test } from '@playwright/test';
+
+test('has title', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveTitle(/Vite/);
+});
+`,
+      },
+    ],
+  },
 } as const satisfies Record<OptionalFeature, FeatureAdditions>;
 
 // ---------------------------------------------------------------------------
@@ -162,6 +207,11 @@ export function buildPackageJson(ctx: ScaffoldContext): string {
   if (ctx.features.includes('vitest')) {
     pkg.scripts['test'] = 'vitest';
     pkg.scripts['test:ui'] = 'vitest --ui';
+  }
+
+  if (ctx.features.includes('playwright')) {
+    pkg.scripts['test:e2e'] = 'playwright test';
+    pkg.scripts['test:e2e:ui'] = 'playwright test --ui';
   }
 
   return JSON.stringify(pkg, null, 2) + '\n';
