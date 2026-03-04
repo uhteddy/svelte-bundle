@@ -1,5 +1,13 @@
 # Changelog
 
+# [0.4.0-beta.0](https://github.com/uhteddy/svelte-bundle/compare/v0.3.0...v0.4.0-beta.0) (2026-03-04)
+
+
+### Features
+
+* inline binary file compilation ([a82c18a](https://github.com/uhteddy/svelte-bundle/commit/a82c18a3efddcdcc70fa90dca5966a1925174172))
+* playwright in cli create command ([3e04cf5](https://github.com/uhteddy/svelte-bundle/commit/3e04cf572d8c42757159322ad5fb2256dc31b7f2))
+
 # [0.3.0](https://github.com/uhteddy/svelte-bundle/compare/v0.3.0-beta.0...v0.3.0) (2026-03-04)
 
 # [0.3.0-beta.0](https://github.com/uhteddy/svelte-bundle/compare/v0.2.1...v0.3.0-beta.0) (2026-03-04)
