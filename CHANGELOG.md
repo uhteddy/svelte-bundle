@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.3.0-beta.0](https://github.com/uhteddy/svelte-bundle/compare/v0.2.1...v0.3.0-beta.0) (2026-03-04)
+
+
+### Features
+
+* update workflow for incremental changes ([dac93ba](https://github.com/uhteddy/svelte-bundle/commit/dac93ba3671332fc4a8cf2fb826f30eb0b6f1c20))
+
 ## [0.2.1](https://github.com/uhteddy/svelte-bundle/compare/v0.2.0...v0.2.1) (2026-03-04)
 
 
