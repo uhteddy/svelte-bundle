@@ -5,6 +5,18 @@ on:
     branches:
       - main
       - beta
+  workflow_dispatch:
+    inputs:
+      increment:
+        description: "Version increment (overrides commit-based bump)"
+        required: false
+        default: ""
+        type: choice
+        options:
+          - ""
+          - patch
+          - minor
+          - major
 
 # Ensure only one release runs per branch at a time.
 # cancel-in-progress: false means a second push waits rather than cancels.
@@ -48,12 +60,16 @@ jobs:
 
       - name: Release (beta)
         if: github.ref_name == 'beta'
-        run: bun run release -- --preRelease=beta --ci
+        run: |
+          EXTRA="${{ inputs.increment != '' && format('--increment={0}', inputs.increment) || '' }}"
+          bun run release -- --preRelease=beta --ci $EXTRA
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
       - name: Release (stable)
         if: github.ref_name == 'main'
-        run: bun run release -- --ci
+        run: |
+          EXTRA="${{ inputs.increment != '' && format('--increment={0}', inputs.increment) || '' }}"
+          bun run release -- --ci $EXTRA
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
