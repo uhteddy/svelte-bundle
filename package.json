@@ -1,6 +1,6 @@
 {
   "name": "svelte-bundle",
-  "version": "0.2.0-beta.10",
+  "version": "0.2.0-beta.11",
   "description": "A powerful CLI for scaffolding and bundling Svelte components",
   "type": "module",
   "bin": {
