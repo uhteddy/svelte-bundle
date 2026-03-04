@@ -88,6 +88,7 @@ export async function runCreatePrompts(
         { value: 'eslint', label: 'ESLint', hint: 'code linting' },
         { value: 'prettier', label: 'Prettier', hint: 'code formatting' },
         { value: 'vitest', label: 'Vitest', hint: 'unit testing' },
+        { value: 'playwright', label: 'Playwright', hint: 'end-to-end testing' },
       ],
       required: false,
     }),

@@ -7,7 +7,7 @@ export type ProjectTemplate = 'default';
 
 export type OutputFormat = 'es' | 'cjs';
 
-export type OptionalFeature = 'tailwind' | 'eslint' | 'prettier' | 'vitest';
+export type OptionalFeature = 'tailwind' | 'eslint' | 'prettier' | 'vitest' | 'playwright';
 
 /** Answers collected from the interactive create prompts. */
 export interface CreatePromptAnswers {

@@ -1,8 +1,9 @@
+import { cancel, isCancel, text } from '@clack/prompts';
 import { defineCommand } from 'citty';
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { readFile, rm, writeFile } from 'node:fs/promises';
-import { dirname, join, relative, resolve } from 'node:path';
+import { readFile, readdir, rm, writeFile } from 'node:fs/promises';
+import { dirname, extname, join, relative, resolve } from 'node:path';
 import { ensureDir } from '../../utils/fs.ts';
 import { logger } from '../../utils/logger.ts';
 import pc from 'picocolors';
@@ -126,6 +127,108 @@ async function inlineAssets(distDir: string): Promise<string> {
   );
 
   return html;
+}
+
+// ── Binary Asset Handling ────────────────────────────────────────────────────
+
+const MIME_MAP: Readonly<Record<string, string>> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.avif': 'image/avif',
+  '.pdf': 'application/pdf',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.otf': 'font/otf',
+};
+
+interface AssetEntry {
+  readonly assetPath: string;   // e.g. /assets/banner-aBcDeFgH.png
+  readonly diskPath: string;    // absolute path
+  readonly ext: string;         // e.g. .png
+  readonly displayName: string; // hash-stripped, e.g. banner.png
+}
+
+/** Strips the content-hash Vite appends: banner-aBcDeFgH.png → banner.png */
+function stripViteHash(filename: string): string {
+  return filename.replace(/-[A-Za-z0-9_-]{8,}(\.[^.]+)$/, '$1');
+}
+
+/** Scans dist/assets for non-JS/CSS files and returns asset entries. */
+async function discoverAssets(distDir: string): Promise<readonly AssetEntry[]> {
+  const assetsDir = join(distDir, 'assets');
+  if (!existsSync(assetsDir)) return [];
+  const files = await readdir(assetsDir);
+  return files
+    .filter((f) => !f.endsWith('.js') && !f.endsWith('.css') && !f.endsWith('.map'))
+    .map((f) => ({
+      assetPath: `/assets/${f}`,
+      diskPath: join(assetsDir, f),
+      ext: extname(f).toLowerCase(),
+      displayName: stripViteHash(f),
+    }));
+}
+
+/** Returns only assets whose path appears somewhere in the HTML string. */
+function findReferencedAssets(html: string, assets: readonly AssetEntry[]): readonly AssetEntry[] {
+  return assets.filter((a) => html.includes(a.assetPath));
+}
+
+/** Replaces every asset reference in the HTML with a base64 data URI. */
+async function inlineAssetsAsBase64(html: string, assets: readonly AssetEntry[]): Promise<string> {
+  let result = html;
+  for (const asset of assets) {
+    const mime = MIME_MAP[asset.ext] ?? 'application/octet-stream';
+    const data = await readFile(asset.diskPath);
+    const dataUri = `data:${mime};base64,${data.toString('base64')}`;
+    result = result.replaceAll(asset.assetPath, dataUri);
+  }
+  return result;
+}
+
+/** Applies a map of { assetPath → remoteUrl } substitutions to the HTML. */
+function applyAssetUrls(html: string, replacements: ReadonlyMap<string, string>): string {
+  let result = html;
+  for (const [assetPath, url] of replacements) {
+    result = result.replaceAll(assetPath, url);
+  }
+  return result;
+}
+
+/**
+ * Interactively prompts for a remote URL for each referenced asset.
+ * Leaving a prompt blank skips that asset (keeps the build path).
+ */
+async function promptAssetUrls(assets: readonly AssetEntry[]): Promise<ReadonlyMap<string, string>> {
+  const replacements = new Map<string, string>();
+  for (const asset of assets) {
+    const answer = await text({
+      message: `Remote URL for ${pc.cyan(asset.displayName)} ${pc.dim(`(${asset.assetPath})`)}:`,
+      placeholder: `https://cdn.example.com/${asset.displayName}`,
+      validate(value) {
+        const v = value.trim();
+        if (v.length === 0) return undefined; // blank = keep original
+        if (!v.startsWith('http://') && !v.startsWith('https://') && !v.startsWith('/')) {
+          return 'Enter a valid URL (https://...) or root-relative path (/...), or leave blank to keep the original.';
+        }
+        return undefined;
+      },
+    });
+    if (isCancel(answer)) {
+      cancel('Build cancelled.');
+      process.exit(0);
+    }
+    const url = (answer as string).trim();
+    if (url.length > 0) {
+      replacements.set(asset.assetPath, url);
+    }
+  }
+  return replacements;
 }
 
 // ── SSR Rendering ───────────────────────────────────────────────────────────
@@ -257,6 +360,11 @@ export const buildCommand = defineCommand({
       default: 'production',
       alias: 'm',
     },
+    'inline-assets': {
+      type: 'boolean',
+      description: 'Embed binary assets (images, fonts, etc.) as base64 data URIs instead of prompting for remote URLs',
+      default: false,
+    },
   },
   async run({ args }) {
     const projectDir = process.cwd();
@@ -304,7 +412,29 @@ export const buildCommand = defineCommand({
       logger.success('SSR content injected.');
     }
 
-    // ── Step 4: Write final output ─────────────────────────────────────────
+    // ── Step 4: Binary asset handling ─────────────────────────────────────
+    const allAssets = await discoverAssets(distDir);
+    const referencedAssets = findReferencedAssets(html, allAssets);
+
+    if (referencedAssets.length > 0) {
+      if (args['inline-assets']) {
+        logger.step(`Inlining ${referencedAssets.length} asset(s) as base64...`);
+        html = await inlineAssetsAsBase64(html, referencedAssets);
+        logger.success('Assets inlined.');
+      } else {
+        logger.info(
+          `Found ${pc.yellow(String(referencedAssets.length))} binary asset(s) referenced in the output.\n` +
+          pc.dim('  Enter a remote URL for each, or leave blank to keep the original build path.'),
+        );
+        const replacements = await promptAssetUrls(referencedAssets);
+        if (replacements.size > 0) {
+          html = applyAssetUrls(html, replacements);
+          logger.success(`Updated ${replacements.size} asset URL(s).`);
+        }
+      }
+    }
+
+    // ── Step 5: Write final output ─────────────────────────────────────────
     await ensureDir(dirname(outfile));
     await writeFile(outfile, html, 'utf-8');
 
