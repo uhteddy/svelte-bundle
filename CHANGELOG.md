@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/uhteddy/svelte-bundle/compare/v0.2.0...v0.2.1) (2026-03-04)
+
+
+### Bug Fixes
+
+* release.yml fix ([3ad1d61](https://github.com/uhteddy/svelte-bundle/commit/3ad1d612fe7d87e816424676cecacba475e01f72))
+
 # [0.2.0](https://github.com/uhteddy/svelte-bundle/compare/v0.2.0-beta.13...v0.2.0) (2026-03-04)
 
 # [0.2.0-beta.13](https://github.com/uhteddy/svelte-bundle/compare/v0.2.0-beta.12...v0.2.0-beta.13) (2026-03-04)
