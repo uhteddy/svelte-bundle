@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, "v*"]
+    branches: [main, beta]
   pull_request:
-    branches: [main]
+    branches: [main, beta]
 
 jobs:
   test:
@@ -28,3 +28,17 @@ jobs:
 
       - name: Run tests
         run: bun test
+
+  commitlint:
+    name: Lint commits
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Lint commit messages
+        uses: wagoid/commitlint-github-action@v6

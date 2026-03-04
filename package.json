@@ -18,7 +18,9 @@
     "build": "bun build src/cli.ts --outfile dist/cli.js --target node --format esm",
     "dev": "bun run src/cli.ts",
     "test": "bun test",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "release": "release-it",
+    "prepare": "husky"
   },
   "dependencies": {
     "@clack/prompts": "^0.9.1",
@@ -26,7 +28,11 @@
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.4.3",
+    "@commitlint/config-conventional": "^20.4.3",
+    "@release-it/conventional-changelog": "^10.0.5",
     "@types/bun": "latest",
+    "husky": "^9.1.7",
     "release-it": "^19.2.4",
     "typescript": "^5"
   }
