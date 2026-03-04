@@ -21,11 +21,13 @@ jobs:
         with:
           bun-version: "1.2.9"
 
+      # registry-url is required — setup-node uses it to write an auth-aware
+      # .npmrc that maps NODE_AUTH_TOKEN to the registry for npm publish.
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: "22"
-          # No registry-url here: we want a clean .npmrc for OIDC to work properly
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -66,7 +68,8 @@ jobs:
       - name: Fix package.json
         run: npm pkg fix
 
+      # No NPM_TOKEN needed — authentication is handled via the OIDC id-token.
+      # Requires the repository to be linked as a Trusted Publisher on npmjs.com:
+      # npmjs.com → svelte-bundle → Settings → Publishing Access → Link GitHub repository
       - name: Publish to npm (tag → ${{ steps.meta.outputs.tag }})
-        # No 'env: NODE_AUTH_TOKEN' needed.
-        # npm will use the id-token to authenticate with the Trusted Publisher.
         run: npm publish --tag ${{ steps.meta.outputs.tag }} --provenance --access public
