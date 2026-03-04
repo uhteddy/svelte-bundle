@@ -1,5 +1,7 @@
 # Changelog
 
+# [0.2.0](https://github.com/uhteddy/svelte-bundle/compare/v0.2.0-beta.13...v0.2.0) (2026-03-04)
+
 # [0.2.0-beta.13](https://github.com/uhteddy/svelte-bundle/compare/v0.2.0-beta.12...v0.2.0-beta.13) (2026-03-04)
 
 # [0.2.0-beta.12](https://github.com/uhteddy/svelte-bundle/compare/v0.2.0-beta.11...v0.2.0-beta.12) (2026-03-04)
