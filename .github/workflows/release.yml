@@ -1,0 +1,50 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+      - beta
+
+jobs:
+  release:
+    name: Version & release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # RELEASE_TOKEN is a Personal Access Token with `contents: write` scope.
+          # Using a PAT (instead of GITHUB_TOKEN) allows the tag push to trigger
+          # the publish.yml workflow. Set it at:
+          # Settings → Secrets and variables → Actions → New repository secret
+          token: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.9"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Release (beta)
+        if: github.ref_name == 'beta'
+        run: bun run release -- --preRelease=beta --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Release (stable)
+        if: github.ref_name == 'main'
+        run: bun run release -- --ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}

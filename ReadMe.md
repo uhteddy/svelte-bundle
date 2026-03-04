@@ -6,7 +6,7 @@
 
 Scaffold a Svelte 5 + Vite project and bundle it into a **single self-contained `.html` file** — CSS and JS fully inlined, no web server required.
 
-Built for environments that only accept plain HTML: legacy CMS platforms, email embeds, kiosks, or anywhere you need real reactivity without a build server.
+Built for environments that only accept plain HTML: legacy CMS platforms or anywhere you need real reactivity without a build server.
 
 > **Not a SvelteKit tool.** This scaffolds a standalone Svelte 5 app and outputs one `.html` file.
 
