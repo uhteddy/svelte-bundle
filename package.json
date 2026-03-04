@@ -11,6 +11,9 @@
     "dist",
     "templates"
   ],
+  "repository": {
+    "url": "https://github.com/uhteddy/svelte-bundle"
+  },
   "scripts": {
     "build": "bun build src/cli.ts --outfile dist/cli.js --target node --format esm",
     "dev": "bun run src/cli.ts",
