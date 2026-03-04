@@ -22,17 +22,15 @@
     "release": "release-it",
     "prepare": "husky"
   },
-  "dependencies": {
-    "@clack/prompts": "^0.9.1",
-    "citty": "^0.1.6",
-    "picocolors": "^1.1.1"
-  },
   "devDependencies": {
+    "@clack/prompts": "^0.9.1",
     "@commitlint/cli": "^20.4.3",
     "@commitlint/config-conventional": "^20.4.3",
     "@release-it/conventional-changelog": "^10.0.5",
     "@types/bun": "latest",
+    "citty": "^0.1.6",
     "husky": "^9.1.7",
+    "picocolors": "^1.1.1",
     "release-it": "^19.2.4",
     "typescript": "^5"
   }
