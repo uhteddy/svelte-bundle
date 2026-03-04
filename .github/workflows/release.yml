@@ -6,10 +6,19 @@ on:
       - main
       - beta
 
+# Ensure only one release runs per branch at a time.
+# cancel-in-progress: false means a second push waits rather than cancels.
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
 jobs:
   release:
     name: Version & release
     runs-on: ubuntu-latest
+    # Skip when release-it pushes back its own "chore: release vX.Y.Z" commit,
+    # which would otherwise re-trigger this workflow and loop forever.
+    if: "!startsWith(github.event.head_commit.message, 'chore: release')"
     permissions:
       contents: write
 
