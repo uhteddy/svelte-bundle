@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.4.0-beta.1](https://github.com/uhteddy/svelte-bundle/compare/v0.4.0-beta.0...v0.4.0-beta.1) (2026-03-04)
+
+
+### Bug Fixes
+
+* remove unecessary dependancies ([ce65d07](https://github.com/uhteddy/svelte-bundle/commit/ce65d0723ab3c76ca4c2aed982e21a5620423c2a))
+
 # [0.4.0-beta.0](https://github.com/uhteddy/svelte-bundle/compare/v0.3.0...v0.4.0-beta.0) (2026-03-04)
 
 
