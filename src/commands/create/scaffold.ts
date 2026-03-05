@@ -268,7 +268,6 @@ export default defineConfig({
   esbuild: {
     // Strip all legal/license comments (e.g. from lucide-svelte) from JS and CSS
     legalComments: 'none',
-    comments: false,
   },
 });
 `;
