@@ -1,18 +1,6 @@
 # Changelog
 
-# [0.4.0-beta.2](https://github.com/uhteddy/svelte-bundle/compare/v0.4.0-beta.1...v0.4.0-beta.2) (2026-03-05)
-
-
-### Bug Fixes
-
-* added svelte-bundle as a dev dependency for the project. ([6848296](https://github.com/uhteddy/svelte-bundle/commit/6848296b9f9cf6c376860d0391379d6f193b1e54))
-* remove comments removal from vite build ([7e88d6e](https://github.com/uhteddy/svelte-bundle/commit/7e88d6e39c04f8afd2020b05c41ce33972f47600))
-* Updated version in CLI to reflect package.json ([ba38315](https://github.com/uhteddy/svelte-bundle/commit/ba383156d8f1cf423d09d603ac37f701a20d63ce))
-
-
-### Features
-
-* build command flag selection ([5142f1f](https://github.com/uhteddy/svelte-bundle/commit/5142f1f4bece77c37ab4d8e041fe9fcfa6435574))
+# [0.4.0](https://github.com/uhteddy/svelte-bundle/compare/v0.4.0-beta.1...v0.4.0) (2026-03-04)
 
 # [0.4.0-beta.1](https://github.com/uhteddy/svelte-bundle/compare/v0.4.0-beta.0...v0.4.0-beta.1) (2026-03-04)
 
