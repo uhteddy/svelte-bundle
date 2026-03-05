@@ -9,6 +9,8 @@ import type {
 import { copyDir, ensureDir, pathExists } from "../../utils/fs.ts";
 import { logger } from "../../utils/logger.ts";
 
+import { version } from "../../../package.json";
+
 // ---------------------------------------------------------------------------
 // Template variable substitution
 // ---------------------------------------------------------------------------
@@ -204,6 +206,7 @@ export function buildPackageJson(ctx: ScaffoldContext): string {
       svelte: "^5.0.0",
       typescript: "^5.0.0",
       vite: "^6.0.0",
+      "svelte-bundle": `^${version}`,
     },
   };
 
