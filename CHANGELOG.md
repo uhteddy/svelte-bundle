@@ -1,5 +1,15 @@
 # Changelog
 
+# [0.5.0](https://github.com/uhteddy/svelte-bundle/compare/v0.4.0-beta.2...v0.5.0) (2026-03-05)
+
+
+### Bug Fixes
+
+* Update prompt versioning to pull from package.json ([2a5f3ca](https://github.com/uhteddy/svelte-bundle/commit/2a5f3ca8691da4c6473ad89db8d2094b8680ddf2))
+* update versioning ([208428f](https://github.com/uhteddy/svelte-bundle/commit/208428f1e1e549d74d43b1dc4f451e405bd50768))
+
+# [0.4.0](https://github.com/uhteddy/svelte-bundle/compare/v0.4.0-beta.2...v0.5.0) (2026-03-04)
+
 # [0.4.0](https://github.com/uhteddy/svelte-bundle/compare/v0.4.0-beta.1...v0.4.0) (2026-03-04)
 
 # [0.4.0-beta.1](https://github.com/uhteddy/svelte-bundle/compare/v0.4.0-beta.0...v0.4.0-beta.1) (2026-03-04)
