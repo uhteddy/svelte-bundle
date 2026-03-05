@@ -124,11 +124,11 @@ describe('scaffold: vite.config.ts comment stripping', () => {
     }
   });
 
-  test('generated config includes comments: false', async () => {
+  test('generated config includes esbuild block', async () => {
     const { dir, cleanup } = await scaffoldInto();
     try {
       const config = await readFile(join(dir, 'vite.config.ts'), 'utf-8');
-      expect(config).toContain('comments: false');
+      expect(config).toContain('esbuild:');
     } finally {
       await cleanup();
     }

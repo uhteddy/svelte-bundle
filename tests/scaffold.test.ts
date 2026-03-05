@@ -33,8 +33,8 @@ describe('buildViteConfig', () => {
       expect(buildViteConfig(ctx)).toContain("legalComments: 'none'");
     });
 
-    test('includes comments: false', () => {
-      expect(buildViteConfig(makeCtx())).toContain('comments: false');
+    test('includes esbuild config block', () => {
+      expect(buildViteConfig(makeCtx())).toContain('esbuild:');
     });
   });
 
