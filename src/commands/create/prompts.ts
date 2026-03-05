@@ -7,10 +7,19 @@ import {
   outro,
   select,
   text,
-} from '@clack/prompts';
-import pc from 'picocolors';
-import type { CreatePromptAnswers, OptionalFeature, PackageManager } from '../../types.ts';
-import { toValidPackageName, validatePackageName } from '../../utils/validate.ts';
+} from "@clack/prompts";
+import pc from "picocolors";
+import type {
+  BuildFlag,
+  CreatePromptAnswers,
+  OptionalFeature,
+  PackageManager,
+} from "../../types.ts";
+import {
+  toValidPackageName,
+  validatePackageName,
+} from "../../utils/validate.ts";
+import { version } from "../../../package.json";
 
 /**
  * Asserts that a @clack/prompts return value is not a cancellation symbol.
@@ -18,7 +27,7 @@ import { toValidPackageName, validatePackageName } from '../../utils/validate.ts
  */
 function assertNotCancelled<T>(value: T | symbol): T {
   if (isCancel(value)) {
-    cancel('Operation cancelled.');
+    cancel("Operation cancelled.");
     process.exit(0);
   }
   return value;
@@ -29,7 +38,7 @@ export async function runCreatePrompts(
   nameArg: string | undefined,
   pmArg: string | undefined,
 ): Promise<CreatePromptAnswers> {
-  intro(pc.bgCyan(pc.black(' svelte-bundle ')) + pc.dim(' v0.2.0'));
+  intro(pc.bgCyan(pc.black(" svelte-bundle ")) + pc.dim(`v${version}`));
 
   // --- Project name ---
   let name: string;
@@ -44,8 +53,8 @@ export async function runCreatePrompts(
   } else {
     const rawName = assertNotCancelled(
       await text({
-        message: 'Project name:',
-        placeholder: 'my-svelte-app',
+        message: "Project name:",
+        placeholder: "my-svelte-app",
         validate(value) {
           return validatePackageName(value) ?? undefined;
         },
@@ -58,22 +67,29 @@ export async function runCreatePrompts(
   let packageManager: PackageManager;
 
   if (pmArg !== undefined) {
-    const validPMs = ['bun', 'npm', 'pnpm', 'yarn'] as const satisfies readonly PackageManager[];
+    const validPMs = [
+      "bun",
+      "npm",
+      "pnpm",
+      "yarn",
+    ] as const satisfies readonly PackageManager[];
     const matched = validPMs.find((pm) => pm === pmArg);
     if (matched === undefined) {
-      cancel(`Unknown package manager "${pmArg}". Must be one of: bun, npm, pnpm, yarn.`);
+      cancel(
+        `Unknown package manager "${pmArg}". Must be one of: bun, npm, pnpm, yarn.`,
+      );
       process.exit(1);
     }
     packageManager = matched;
   } else {
     packageManager = assertNotCancelled(
       await select<PackageManager>({
-        message: 'Package manager:',
+        message: "Package manager:",
         options: [
-          { value: 'bun', label: 'bun', hint: 'recommended' },
-          { value: 'npm', label: 'npm' },
-          { value: 'pnpm', label: 'pnpm' },
-          { value: 'yarn', label: 'yarn' },
+          { value: "bun", label: "bun", hint: "recommended" },
+          { value: "npm", label: "npm" },
+          { value: "pnpm", label: "pnpm" },
+          { value: "yarn", label: "yarn" },
         ],
       }),
     );
@@ -82,13 +98,47 @@ export async function runCreatePrompts(
   // --- Optional features ---
   const features = assertNotCancelled(
     await multiselect<OptionalFeature>({
-      message: 'Add optional features: (space to toggle, enter to confirm)',
+      message: "Add optional features: (space to toggle, enter to confirm)",
       options: [
-        { value: 'tailwind', label: 'Tailwind CSS', hint: 'utility-first CSS framework' },
-        { value: 'eslint', label: 'ESLint', hint: 'code linting' },
-        { value: 'prettier', label: 'Prettier', hint: 'code formatting' },
-        { value: 'vitest', label: 'Vitest', hint: 'unit testing' },
-        { value: 'playwright', label: 'Playwright', hint: 'end-to-end testing' },
+        {
+          value: "tailwind",
+          label: "Tailwind CSS",
+          hint: "utility-first CSS framework",
+        },
+        { value: "eslint", label: "ESLint", hint: "code linting" },
+        { value: "prettier", label: "Prettier", hint: "code formatting" },
+        { value: "vitest", label: "Vitest", hint: "unit testing" },
+        {
+          value: "playwright",
+          label: "Playwright",
+          hint: "end-to-end testing",
+        },
+      ],
+      required: false,
+    }),
+  );
+
+  // --- Build flags ---
+  const buildFlags = assertNotCancelled(
+    await multiselect<BuildFlag>({
+      message:
+        "Customize the build command: (space to toggle, enter to confirm)",
+      options: [
+        {
+          value: "hydrate",
+          label: "--hydrate",
+          hint: "SSR pre-rendering for SEO-friendly output",
+        },
+        {
+          value: "inline-assets",
+          label: "--inline-assets",
+          hint: "embed binary assets as base64 data URIs",
+        },
+        {
+          value: "mode-development",
+          label: "--mode development",
+          hint: "build in development mode instead of production",
+        },
       ],
       required: false,
     }),
@@ -97,7 +147,7 @@ export async function runCreatePrompts(
   // --- Git init ---
   const git = assertNotCancelled(
     await confirm({
-      message: 'Initialize a git repository?',
+      message: "Initialize a git repository?",
       initialValue: true,
     }),
   );
@@ -110,12 +160,13 @@ export async function runCreatePrompts(
     }),
   );
 
-  outro(pc.green('Configuration complete!'));
+  outro(pc.green("Configuration complete!"));
 
   return {
     name,
     packageManager,
     features,
+    buildFlags,
     git,
     install,
   } as const;

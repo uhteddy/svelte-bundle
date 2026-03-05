@@ -9,11 +9,14 @@ export type OutputFormat = 'es' | 'cjs';
 
 export type OptionalFeature = 'tailwind' | 'eslint' | 'prettier' | 'vitest' | 'playwright';
 
+export type BuildFlag = 'hydrate' | 'inline-assets' | 'mode-development';
+
 /** Answers collected from the interactive create prompts. */
 export interface CreatePromptAnswers {
   readonly name: string;
   readonly packageManager: PackageManager;
   readonly features: readonly OptionalFeature[];
+  readonly buildFlags: readonly BuildFlag[];
   readonly git: boolean;
   readonly install: boolean;
 }
