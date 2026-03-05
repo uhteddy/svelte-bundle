@@ -30,6 +30,7 @@ async function scaffoldInto(
     targetDir: dir,
     templateDir: join(TEMPLATES_DIR, 'default'),
     features: [],
+    buildFlags: [],
     packageManager: 'bun',
     git: false,
     install: false,

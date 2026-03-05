@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import type {
+  BuildFlag,
   OptionalFeature,
   PackageManager,
   ScaffoldContext,
@@ -177,6 +178,21 @@ test('has title', async ({ page }) => {
 } as const satisfies Record<OptionalFeature, FeatureAdditions>;
 
 // ---------------------------------------------------------------------------
+// Build script construction
+// ---------------------------------------------------------------------------
+
+const BUILD_FLAG_ARGS = {
+  hydrate: "--hydrate",
+  "inline-assets": "--inline-assets",
+  "mode-development": "--mode development",
+} as const satisfies Record<BuildFlag, string>;
+
+function buildScript(flags: readonly BuildFlag[]): string {
+  const args = flags.map((f) => BUILD_FLAG_ARGS[f]);
+  return args.length > 0 ? `svelte-bundle build ${args.join(" ")}` : "svelte-bundle build";
+}
+
+// ---------------------------------------------------------------------------
 // Package.json merging
 // ---------------------------------------------------------------------------
 
@@ -197,7 +213,7 @@ export function buildPackageJson(ctx: ScaffoldContext): string {
     type: "module",
     scripts: {
       dev: "vite",
-      build: "svelte-bundle build",
+      build: buildScript(ctx.buildFlags),
       preview: "vite preview",
       "type-check": "tsc --noEmit",
     },

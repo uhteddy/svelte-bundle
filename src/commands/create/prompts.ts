@@ -9,7 +9,7 @@ import {
   text,
 } from '@clack/prompts';
 import pc from 'picocolors';
-import type { CreatePromptAnswers, OptionalFeature, PackageManager } from '../../types.ts';
+import type { BuildFlag, CreatePromptAnswers, OptionalFeature, PackageManager } from '../../types.ts';
 import { toValidPackageName, validatePackageName } from '../../utils/validate.ts';
 
 /**
@@ -94,6 +94,19 @@ export async function runCreatePrompts(
     }),
   );
 
+  // --- Build flags ---
+  const buildFlags = assertNotCancelled(
+    await multiselect<BuildFlag>({
+      message: 'Customize the build command: (space to toggle, enter to confirm)',
+      options: [
+        { value: 'hydrate', label: '--hydrate', hint: 'SSR pre-rendering for SEO-friendly output' },
+        { value: 'inline-assets', label: '--inline-assets', hint: 'embed binary assets as base64 data URIs' },
+        { value: 'mode-development', label: '--mode development', hint: 'build in development mode instead of production' },
+      ],
+      required: false,
+    }),
+  );
+
   // --- Git init ---
   const git = assertNotCancelled(
     await confirm({
@@ -116,6 +129,7 @@ export async function runCreatePrompts(
     name,
     packageManager,
     features,
+    buildFlags,
     git,
     install,
   } as const;

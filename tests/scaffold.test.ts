@@ -8,6 +8,7 @@ function makeCtx(overrides: Partial<ScaffoldContext> = {}): ScaffoldContext {
     targetDir: '/tmp/test-project',
     templateDir: '/tmp/template',
     features: [],
+    buildFlags: [],
     packageManager: 'bun',
     git: false,
     install: false,
