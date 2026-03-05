@@ -9,7 +9,8 @@ const main = defineCommand({
   meta: {
     name: "svelte-bundle",
     version: version,
-    description: "Scaffold and bundle Svelte components with Vite",
+    description:
+      "Scaffold and bundle a svelte project into a single html file with Vite.",
   },
   subCommands: {
     create: createCommand,
